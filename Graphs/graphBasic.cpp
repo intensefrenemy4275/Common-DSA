@@ -24,7 +24,60 @@ void bfs(int s, vector<vector<int>> graph)
   }
   cout<<endl<<endl;
 }
-
+void dfs(int s,vector<vector<int>> &graph, int vis[])
+{
+  vis[s] = 1;
+  cout<<s<<" ";
+  for(int i=0;i<graph[s].size();i++)
+  {
+    if(vis[graph[s][i]]!=1)
+    {
+      dfs(graph[s][i],graph,vis);
+    }
+  }
+  return;
+}
+bool detectCycleBFS(vector<vector<int>> graph, int vis[],int s)
+{
+  vis[s] = 1;
+  queue<pair<int,int>> q;
+  q.push(make_pair(s,-1));
+  while(!q.empty())
+  {
+    int node = q.front().first;
+    int src = q.front().second;
+    q.pop();
+    for(int i=0;i<graph[node].size();i++)
+    {
+      if(vis[graph[node][i]] != 1)
+      {
+      vis[graph[node][i]] = 1;
+      q.push(make_pair(graph[node][i],node));
+      }
+      else if(graph[node][i] != src)
+      {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+bool detectCycleDFS(vector<vector<int>> &graph, int vis[], int node, int parent)
+{
+  vis[node] = 1;
+  for(int i=0;i<graph[node].size();i++)
+  {
+    if(vis[graph[node][i]] != 1)
+    {
+      bool ans = detectCycleDFS(graph, vis, graph[node][i], node);
+      if(ans)
+        return true;
+    }
+    else if(graph[node][i] != parent)
+      return true;
+  }
+  return false;
+}
 int main()
 {
   
@@ -47,10 +100,17 @@ int main()
     graph[l2].push_back(l1);
     //undirected graph
   }
-  cout<<"Breadth First Traversal For : "<<endl;
-  int start;
-  cin>>start;
-  cout<<"BFS : "<<endl;
-  bfs(start,graph);
+  bool cycle = false;
+  cout<<"Cycle : "<<endl;
+  int vis[v+1] = {0};
+  for(int i=1;i<=v;i++)
+  {
+    if(vis[i] == 0 && detectCycleDFS(graph,vis,i,-1))
+    {
+      cycle = true;
+      break;
+    }
+  }
+  cout<<cycle<<endl;
   return 0;
 }
